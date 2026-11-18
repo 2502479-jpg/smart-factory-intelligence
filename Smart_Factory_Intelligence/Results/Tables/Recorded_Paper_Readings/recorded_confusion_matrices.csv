@@ -1,0 +1,4 @@
+,TN,FP,FN,TP
+Decision Tree,175955,576,923,109
+Random Forest,176132,399,924,108
+Boost,175887,644,880,152

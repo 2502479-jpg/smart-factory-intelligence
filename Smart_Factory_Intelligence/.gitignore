@@ -1,0 +1,15 @@
+# raw competition data must NOT be uploaded
+Data/
+train_numeric.csv
+train_date.csv
+train_categorical.csv
+test_*.csv
+synthetic_*.csv
+*.zip
+# python / tooling
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+.DS_Store

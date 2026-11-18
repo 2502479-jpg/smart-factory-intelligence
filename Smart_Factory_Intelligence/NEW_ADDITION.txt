@@ -1,0 +1,90 @@
+NEW ADDITION: MULTI-SEVERITY FEATURE DRIFT ANALYSIS AND MODEL ADAPTATION
+Project : Smart Factory Intelligence: Manufacturing Defect Prediction, Explainability,
+          and Controlled Data-Drift Adaptation
+Author  : Muhammad Areeb Waqas, Air University, Islamabad, Pakistan
+Course  : Intro to AI   |   Code file: Implementation/multi_severity_drift.py
+
+==========================================================================
+IMPLEMENTATION STATUS (read this first)
+==========================================================================
+COMPLETED
+ - The extension is fully implemented in code (multi_severity_drift.py) and is run
+   automatically by main.py.
+ - The code was executed end to end on a SMALL SYNTHETIC test file to confirm that it runs
+   and writes all tables and all 7 graphs. Synthetic output has no scientific meaning and
+   is NOT included in this repository.
+PENDING
+ - The extension has NOT been run on the real Bosch dataset (the data were not available
+   where the code was built). Therefore NO experimental results exist yet for this extension
+   and none are reported in the paper. Run main.py on the full dataset to obtain them.
+
+==========================================================================
+1. NAME OF THE NEW ADDITION
+==========================================================================
+Multi-Severity Feature Drift Analysis and Model Adaptation.
+It is an extension to the original research, not part of the original paper's results.
+
+2. WHY IT WAS INTRODUCED
+The original paper tests only one synthetic drift condition. A single condition cannot show
+whether performance gets worse step by step as drift becomes stronger.
+
+3. LIMITATION OF THE ORIGINAL RESEARCH THAT IT ADDRESSES
+The original drift experiment used one fixed shift (+1 standard deviation) on 20 features.
+The extension compares several severity levels with one documented transformation.
+
+4. HOW THE EXPERIMENT WORKS
+ a) Use the top 20 SHAP-ranked features of the XGBoost model. The extension runs on the engineered features of the BASE paper
+    (run_reference_paper.py) and on the numeric features of the derived study (main.py).
+ b) Create four conditions: No Drift, Mild, Moderate, Strong.
+ c) For each condition, transform the test data and measure drift (KS and PSI per feature).
+ d) Evaluate the ORIGINAL model (trained once, original validation threshold) on the
+    transformed test data.
+ e) Retrain a Boost model on the equally transformed training data, choose its threshold on
+    the transformed validation data, and evaluate it on the transformed test data.
+ f) Compare original and retrained models across the four severities.
+ (No Drift is the identity transform, so the retrained model equals the original there and
+ is not retrained.)
+
+5. TRANSFORMATIONS APPLIED
+ shifted_value = reference_mean + scale_factor * (original_value - reference_mean)
+                 + location_factor * reference_std
+
+ Condition   Scale factor   Location factor
+ No Drift       1.00            0.00
+ Mild           1.25            0.25
+ Moderate       1.50            0.50
+ Strong         1.75            0.75
+
+ The reference mean and standard deviation come from the TRAINING partition (ignoring
+ missing values) and are used for every condition. Only non-missing values are changed.
+
+6. EVALUATION METRICS
+ KS statistic and PSI (per feature, plus mean/median PSI and the number of features with
+ PSI > 0.25 per condition); Precision, Recall, F1-score, ROC-AUC, PR-AUC and MCC for the
+ original and the retrained model. PSI levels 0.10 and 0.25 are heuristic guidelines only.
+
+7. GRAPHS GENERATED (Results/Graphs/Extension_Multi_Severity/)
+ 1. Drift severity vs recall            5. Drift severity vs MCC
+ 2. Drift severity vs F1-score          6. PSI comparison across severity levels
+ 3. Drift severity vs PR-AUC            7. Original vs retrained performance by severity
+ 4. Drift severity vs ROC-AUC
+ Tables: Results/Tables/multi_severity_performance.csv, multi_severity_feature_drift.csv,
+ multi_severity_drift_summary.csv. Settings: Results/Experimental_Results/multi_severity_settings.json
+
+8. HOW THE EXTENSION DIFFERS FROM THE ORIGINAL PAPER
+ - Original: one fixed constant shift, one comparison of original vs retrained model.
+ - Extension: four severities, a location AND scale change (not only a constant shift),
+   KS/PSI measured at every severity, and an original-vs-retrained comparison at each level.
+
+9. RESULTS ACTUALLY OBTAINED
+ None on the real dataset yet (see status above). No values are claimed here.
+
+10. LIMITATIONS THAT REMAIN
+ - Drift is synthetic, on 20 features only; it is not natural temporal drift in factory data.
+ - Severity settings are chosen by the researcher, not calibrated to real production changes.
+ - Increasing linear transformations do not change the order of values in a feature. Tree
+   models depend on that order, so a model retrained on consistently transformed data may
+   behave almost like the original (the same limitation seen in the paper's Section 6.6).
+   If the real run shows this, it must be reported as a limitation, not as proof of adaptation.
+ - One dataset and one retraining strategy are used.
+ - Full results are pending a run on the Bosch dataset.

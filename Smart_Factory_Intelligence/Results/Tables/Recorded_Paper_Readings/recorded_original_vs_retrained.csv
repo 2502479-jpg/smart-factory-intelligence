@@ -1,0 +1,7 @@
+,original_model_on_shifted_test,retrained_model_on_shifted_test
+Precision,0.190045,0.190955
+Recall,0.040698,0.147287
+F1,0.067039,0.166302
+ROC-AUC,0.653914,0.691164
+PR-AUC,0.036213,0.049681
+MCC,0.085558,0.163442
